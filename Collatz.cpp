@@ -4,25 +4,36 @@
 
 Collatz::Collatz(){
     n = 0;
+    t = 0;
     steps = 0;
     frequencies = nullptr;
+    stoppingTimes = nullptr;
 }
 
 //constructor that takes in command line value and generates steps, intializes frequencies array
-Collatz::Collatz(int n){
+Collatz::Collatz(int n, int t){
+    nTracker = 1;
     this->n = n;
-    steps = collatzSequence(n);
-    frequencies = new int[steps + 1];
+    this->t = t;
+    //steps = collatzSequence(n);
+    //frequencies = new int[steps + 1];
 
+    /*
     for(int i = 0; i < steps + 1; i++){
         frequencies[i] = 0;
     }
+    */
+
+   run();
 }
 
 //destructor to release frequencies array
 Collatz::~Collatz(){
     if(frequencies != nullptr){
         delete[] frequencies;
+    }
+    if(stoppingTimes != nullptr){
+        delete[] stoppingTimes;
     }
 }
 
@@ -31,10 +42,27 @@ int Collatz::getN(){
     return n;
 }
 
+int Collatz::safeGetNTracker(){
+    // locks access to this function so only one thread can run it at a time
+    mtx.lock();
+    // makes a temporary int equal to nTracker
+    int temp = nTracker;
+    // increments nTracker
+    nTracker++;
+    // unlocks access
+    mtx.unlock();
+    // returns the temp value 
+    return temp;
+}
+
 //gives us amount of steps for value given
 int Collatz::collatzSequence(int startValue){
     int value = startValue;
     int i = 0;
+
+    if (value == 0){ // delete this later
+        return 0;
+    }
 
     while(value != 1){
         if(value % 2 == 0){
@@ -50,14 +78,110 @@ int Collatz::collatzSequence(int startValue){
 }
 
 //function for the threads to call might have to research but i think its right
+/*
 void* Collatz::generateFrequency(void* startValue){
     int i = collatzSequence(*(int*)startValue);
 
     frequencies[i]++;
 }
+*/
 
 //here just to test to make sure functions work and produce right values,
 //will remove from final project
 void Collatz::testFunction(){
     std::cout <<"n = " <<  n << " " << "steps = " << steps << std::endl;
+}
+
+void Collatz::run(){
+    // initializes array with zeroes
+    stoppingTimes = new int[n+1];
+    for (int i = 0; i == n; i++){
+        stoppingTimes[i] = 0;
+    }
+
+    // Makes the threads to generate stopping times
+    //makeThreads();
+
+    // sets the original to make stopping times
+    generateStoppingTimes();
+
+    // joins all threads from the array
+    /*
+    if (t != 0){
+    for(int i = 0; i < t; i++){
+        myThreads->join();
+    }
+    }
+    */
+
+    calculateFrequencies();
+    
+    std::cout << toString();
+    // eventually need time
+}
+
+// test without threads for now
+void Collatz::makeThreads(){
+    /*
+    // maybe need a thread array
+    myThreads = new std::thread[t];
+    for (int i = 0; i < t; i++){
+        // makes t threads that help generate stopping time
+        std::thread temp(&Collatz::generateStoppingTimes);
+        // puts thread in the array to be joined later
+        myThreads = &temp;
+    }
+    */
+}
+
+void Collatz::generateStoppingTimes(){
+    // generates the stopping value for each number 1-n
+    while (nTracker <= n){
+        // temp is set to the next value from 1-n
+        int temp = safeGetNTracker();
+        // index[temp] in the array is set to the stopping time of temp
+        stoppingTimes[temp] = collatzSequence(temp);
+    }
+}
+
+void Collatz::calculateFrequencies(){
+    max = 0;
+    // Finds the highest value in the stopping times table (for some reason the for loop caused a segmentation fault)
+    int j = 0;
+    while (j < n+1){
+        if (stoppingTimes[j] > max){
+            max = stoppingTimes[j];
+        }
+        j++;
+    }
+    /*
+    for (int i = 0; i <= n; i++){
+        std::cout << "boohoo" << std::endl;
+        if (stoppingTimes[i] > max){
+            max = stoppingTimes[i];
+            std::cout << max << std::endl;
+        }
+    }
+    */
+
+    frequencies = new int[max + 1];
+    // initializes frequency array values to 0
+    for (int i = 0; i <= max; i++){
+        frequencies[i] = 0;
+    }
+    
+    // loops through each stopping time and increments its frequency to the frequency array
+    for (int i = 1; i <= n; i++){
+        frequencies[stoppingTimes[i]]++;
+    }
+}
+
+std::string Collatz::toString(){
+    std::string output = "Frequencies for Collatz values 1-n:\n";
+    for (int i = 0; i <= max; i++){
+        if (frequencies[i] != 0){
+            output += "[" + std::to_string(i) + "]: " + std::to_string(frequencies[i]) + "\n";
+        }
+    }
+    return output;
 }
