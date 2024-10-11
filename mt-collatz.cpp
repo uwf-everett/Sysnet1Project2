@@ -4,7 +4,7 @@
 int valueBeingComputed = 0;
 
 int main(int argc, char** argv){
-    Collatz c = Collatz(1000, 3);
+    Collatz c = Collatz(100000, 3);
 
     /*
     //converts command line arguments to ints
