@@ -8,9 +8,12 @@
 #include <thread>
 #include <string>
 #include <vector>
+#include <ctime>
 
 class Collatz{
     private:
+        int startTime;
+        int endTime;
         int n; // number to reach
         int t; // number of threads
         int max; // maximum value found for stopping time (used in toString and calculateFrequencies)

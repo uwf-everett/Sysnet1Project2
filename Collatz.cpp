@@ -69,6 +69,9 @@ int Collatz::collatzSequence(int startValue){
 }
 
 void Collatz::run(){
+    // gets start time of the function
+    startTime = clock();
+
     // initializes array with zeroes
     stoppingTimes = new int[n+1];
     for (int i = 0; i == n; i++){
@@ -87,6 +90,9 @@ void Collatz::run(){
     // converts the array of stopping times into an array with the frequency of each stopping time
     calculateFrequencies();
     
+    // gets the end time
+    endTime = clock();
+
     std::cout << toString();
     // eventually need time
 }
@@ -141,7 +147,9 @@ void Collatz::calculateFrequencies(){
 }
 
 std::string Collatz::toString(){
-    std::string output = "Frequencies for Collatz values 1-n:\n";
+    double runTime = ((double)(endTime - startTime)) / CLOCKS_PER_SEC;
+    std::string output = "Program running time with " + std::to_string(t) + " threads: " + std::to_string(runTime) + " seconds\n";
+    output += "Frequencies for Collatz values 1-n:\n";
     for (int i = 0; i <= max; i++){
         if (frequencies[i] != 0){
             output += "[" + std::to_string(i) + "]: " + std::to_string(frequencies[i]) + "\n";
