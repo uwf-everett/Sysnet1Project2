@@ -12,9 +12,9 @@ int main(int argc, char** argv){
     int t = atoi(argv[2]);
     
     //creates Collatz object
-    Collatz c = Collatz(n,t);
+    Collatz c2 = Collatz(n,t);
     //prints values to make sure they are correct
-    c.testFunction();
+    c2.testFunction();
 
     //make t amount of threads probably via an array and for loop
     //thread call increment valueBeingComputed so it doesnt work on the same value twice
