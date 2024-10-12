@@ -74,7 +74,7 @@ void Collatz::run(){
 
     // initializes array with zeroes
     stoppingTimes = new int[n+1];
-    for (int i = 0; i == n; i++){
+    for (int i = 0; i <= n; i++){
         stoppingTimes[i] = 0;
     }
 
