@@ -15,16 +15,7 @@ Collatz::Collatz(int n, int t){
     nTracker = 1;
     this->n = n;
     this->t = t;
-    //steps = collatzSequence(n);
-    //frequencies = new int[steps + 1];
-
-    /*
-    for(int i = 0; i < steps + 1; i++){
-        frequencies[i] = 0;
-    }
-    */
-
-   run();
+    run();
 }
 
 //destructor to release frequencies array
@@ -60,7 +51,7 @@ int Collatz::collatzSequence(int startValue){
     int value = startValue;
     int i = 0;
 
-    if (value == 0){ // delete this later
+    if (value == 0){
         return 0;
     }
 
@@ -77,61 +68,49 @@ int Collatz::collatzSequence(int startValue){
     return i;
 }
 
-//function for the threads to call might have to research but i think its right
-/*
-void* Collatz::generateFrequency(void* startValue){
-    int i = collatzSequence(*(int*)startValue);
-
-    frequencies[i]++;
-}
-*/
-
-//here just to test to make sure functions work and produce right values,
-//will remove from final project
-void Collatz::testFunction(){
-    std::cout <<"n = " <<  n << " " << "steps = " << steps << std::endl;
-}
-
 void Collatz::run(){
+    // gets start time of the function
+    startTime = clock();
+
     // initializes array with zeroes
     stoppingTimes = new int[n+1];
-    for (int i = 0; i == n; i++){
+    for (int i = 0; i <= n; i++){
         stoppingTimes[i] = 0;
     }
 
     // Makes the threads to generate stopping times
-    //makeThreads();
+    makeThreads();
 
     // sets the original to make stopping times
     generateStoppingTimes();
 
     // joins all threads from the array
-    /*
-    if (t != 0){
-    for(int i = 0; i < t; i++){
-        myThreads->join();
-    }
-    }
-    */
+    joinThreads();
 
+    // converts the array of stopping times into an array with the frequency of each stopping time
     calculateFrequencies();
     
+    // gets the end time
+    endTime = clock();
+
     std::cout << toString();
     // eventually need time
 }
 
-// test without threads for now
 void Collatz::makeThreads(){
-    /*
-    // maybe need a thread array
-    myThreads = new std::thread[t];
     for (int i = 0; i < t; i++){
-        // makes t threads that help generate stopping time
-        std::thread temp(&Collatz::generateStoppingTimes);
-        // puts thread in the array to be joined later
-        myThreads = &temp;
+        // makes t threads that help generate stopping time. Puts them in a vector to be joined later
+        myThreads.push_back(std::thread(&Collatz::generateStoppingTimes, this));
     }
-    */
+    
+}
+
+void Collatz::joinThreads(){
+    if (t != 0){
+        for(int i = 0; i < t; i++){
+            myThreads[i].join();
+        }
+    }
 }
 
 void Collatz::generateStoppingTimes(){
@@ -154,15 +133,6 @@ void Collatz::calculateFrequencies(){
         }
         j++;
     }
-    /*
-    for (int i = 0; i <= n; i++){
-        std::cout << "boohoo" << std::endl;
-        if (stoppingTimes[i] > max){
-            max = stoppingTimes[i];
-            std::cout << max << std::endl;
-        }
-    }
-    */
 
     frequencies = new int[max + 1];
     // initializes frequency array values to 0
@@ -177,7 +147,9 @@ void Collatz::calculateFrequencies(){
 }
 
 std::string Collatz::toString(){
-    std::string output = "Frequencies for Collatz values 1-n:\n";
+    double runTime = ((double)(endTime - startTime)) / CLOCKS_PER_SEC;
+    std::string output = "Program running time with " + std::to_string(t) + " threads: " + std::to_string(runTime) + " seconds\n";
+    output += "Frequencies for Collatz values 1-n:\n";
     for (int i = 0; i <= max; i++){
         if (frequencies[i] != 0){
             output += "[" + std::to_string(i) + "]: " + std::to_string(frequencies[i]) + "\n";
