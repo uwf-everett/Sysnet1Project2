@@ -40,6 +40,7 @@ int Collatz::safeGetNTracker(){
     int temp = nTracker;
     // increments nTracker
     nTracker++;
+    
     // unlocks access
     mtx.unlock();
     // returns the temp value 
@@ -152,7 +153,7 @@ std::string Collatz::toString(){
     output += "Frequencies for Collatz values 1-n:\n";
     for (int i = 0; i <= max; i++){
         if (frequencies[i] != 0){
-            output += "[" + std::to_string(i) + "]: " + std::to_string(frequencies[i]) + "\n";
+            output += "[" + std::to_string(i) + "]: "+ std::to_string(frequencies[i]) + "\n";
         }
     }
     return output;

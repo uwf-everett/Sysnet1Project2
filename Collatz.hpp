@@ -22,13 +22,11 @@ class Collatz{
         int* stoppingTimes;
         int* frequencies; //will contain an array of step values
         std::mutex mtx;
-        //std::thread* myThreads;
         std::vector<std::thread> myThreads;
         int collatzSequence(int startValue);
         int safeGetNTracker(); // Uses a mutex to safely get the next nTracker value.
         void makeThreads();
         void joinThreads();
-        //void generateStoppingTimes(); // generates all stopping times
         void calculateFrequencies(); // fills the frequency array
         std::string toString();
     public:
